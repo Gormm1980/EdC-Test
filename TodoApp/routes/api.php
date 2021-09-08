@@ -14,12 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/login', [App\Http\Controllers\Api\Auth\AuthController::class,'authenticate']);
-Route::post('/register', [App\Http\Controllers\Api\Auth\AuthController::class,'register']);
+Route::prefix('user')->group(function () {
 
-Route::group(['middleware' => 'auth:sanctum'], function() {
-    Route::get('/auth/user', function (Request $request) {
-        return ['data' => $request->user()];
+    Route::post('register', [UserController::class, 'register']);
+    Route::post('login', [UserController::class, 'login']);
+
+    // passport auth api
+    Route::middleware(['auth:api'])->group(function () {
+        Route::get('/', [UserController::class, 'user']);
+        Route::get('logout', [UserController::class, 'logout']);
+
+        // todos resource route
+        Route::resource('todos', TodoController::class);
     });
-    Route::delete('/logout', [App\Http\Controllers\Api\Auth\AuthController::class,'logout']);
 });
